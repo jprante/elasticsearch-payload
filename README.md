@@ -2,16 +2,20 @@
 
 Demo of payloads in Elasticsearch
 
+Note, this project is just a demo and is not working as I expected. If you find bugs, errors, or
+misconceptions, I would be happy to get your message.
+
 ## Versions
 
 
 | Elasticsearch  | Plugin         | Release date |
 | -------------- | -------------- | ------------ |
+| 1.7.0          | 1.7.0.0        | Jul 23, 2015 |
 | 1.4.4          | 1.4.4.0        | Mar 17, 2015 |
 
 ## Installation
 
-    ./bin/plugin --install payload --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-payload/1.4.4.0/elasticsearch-payload-1.4.4.0-plugin.zip
+    ./bin/plugin --install payload --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-payload/1.7.0.0/elasticsearch-payload-1.7.0.0-plugin.zip
 
 Do not forget to restart the node after installing.
 
