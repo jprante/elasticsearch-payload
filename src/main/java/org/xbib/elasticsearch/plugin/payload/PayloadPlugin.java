@@ -1,14 +1,14 @@
-package org.xbib.elasticsearch.payload;
+package org.xbib.elasticsearch.plugin.payload;
 
 import org.elasticsearch.index.analysis.AnalysisModule;
-import org.elasticsearch.index.query.IndexQueryParserModule;
 import org.elasticsearch.index.similarity.SimilarityModule;
-import org.elasticsearch.plugins.AbstractPlugin;
 import org.elasticsearch.index.similarity.PayloadSimilarityProvider;
+import org.elasticsearch.indices.IndicesModule;
+import org.elasticsearch.plugins.Plugin;
 import org.xbib.elasticsearch.index.analysis.PayloadTokenFilterFactory;
 import org.xbib.elasticsearch.index.query.PayloadTermQueryParser;
 
-public class PayloadPlugin extends AbstractPlugin {
+public class PayloadPlugin extends Plugin {
 
     @Override
     public String name() {
@@ -28,8 +28,8 @@ public class PayloadPlugin extends AbstractPlugin {
         module.addSimilarity("payload_similarity", PayloadSimilarityProvider.class);
     }
 
-    public void onModule(IndexQueryParserModule module) {
-        module.addQueryParser("payload_term", PayloadTermQueryParser.class);
+    public void onModule(IndicesModule module) {
+        module.registerQueryParser(PayloadTermQueryParser.class);
     }
 
 }

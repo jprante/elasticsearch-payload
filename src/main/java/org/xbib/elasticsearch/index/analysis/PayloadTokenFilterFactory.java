@@ -11,7 +11,7 @@ import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.settings.IndexSettings;
+import org.elasticsearch.index.settings.IndexSettingsService;
 
 public class PayloadTokenFilterFactory extends AbstractTokenFilterFactory {
 
@@ -20,9 +20,10 @@ public class PayloadTokenFilterFactory extends AbstractTokenFilterFactory {
     private final char delimiter;
 
     @Inject
-    public PayloadTokenFilterFactory(Index index, @IndexSettings Settings indexSettings,
+    public PayloadTokenFilterFactory(Index index,
+                                     IndexSettingsService indexSettingsService,
                                      @Assisted String name, @Assisted Settings settings) {
-        super(index, indexSettings, name, settings);
+        super(index, indexSettingsService.indexSettings(), name, settings);
         this.encoder = createEncoder(settings.get("encoder", "float"));
         this.delimiter = settings.get("delimiter", "|").charAt(0);
     }

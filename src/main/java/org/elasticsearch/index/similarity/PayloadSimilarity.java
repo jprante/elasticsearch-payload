@@ -1,12 +1,11 @@
 package org.elasticsearch.index.similarity;
 
 import org.apache.lucene.analysis.payloads.PayloadHelper;
-import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
 import org.apache.lucene.util.BytesRef;
 
-public class PayloadSimilarity extends DefaultSimilarity {
+public class PayloadSimilarity extends ClassicSimilarity {
 
-    @Override
     public float scorePayload(int doc, int start, int end, BytesRef payload) {
         if (payload != null) {
             return PayloadHelper.decodeFloat(payload.bytes, payload.offset);
@@ -19,5 +18,4 @@ public class PayloadSimilarity extends DefaultSimilarity {
     public String toString() {
         return "PayloadSimilarity";
     }
-
 }

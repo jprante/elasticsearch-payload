@@ -1,35 +1,33 @@
 # Elasticsearch Payload Plugin
 
-Demo of payloads in Elasticsearch
+Demo of payload term query in Elasticsearch.
 
-Note, this project is just a demo and is not working as I expected. If you find bugs, errors, or
-misconceptions, I would be happy to get your message.
+The payloads in this plugin are floating point numbers used to 
+manipulate the term weight during scoring.
 
 ## Versions
 
-
 | Elasticsearch  | Plugin         | Release date |
 | -------------- | -------------- | ------------ |
-| 1.7.0          | 1.7.0.0        | Jul 23, 2015 |
-| 1.4.4          | 1.4.4.0        | Mar 17, 2015 |
+| 2.4.0          | 2.4.0.0        | Sep  8, 2016 |
 
 ## Installation
 
-    ./bin/plugin --install payload --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-payload/1.7.0.0/elasticsearch-payload-1.7.0.0-plugin.zip
+
+    ./bin/plugin install 'http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-payload/2.4.0.0/elasticsearch-payload-2.4.0.0-plugin.zip'
 
 Do not forget to restart the node after installing.
-
-
-## Project docs
-
-The Maven project site is available at [Github](http://jprante.github.io/elasticsearch-payload)
 
 ## Issues
 
 All feedback is welcome! If you find issues, please post them at [Github](https://github.com/jprante/elasticsearch-payload/issues)
 
 
-Example
+## Example
+
+For a Java API example, see SimilarityTest.java
+
+This is a sequence of curl commands to demonstrate the usage of the plugin.
 
     curl -XDELETE 'localhost:9200/test'
 
@@ -40,14 +38,15 @@ Example
          "number_of_replicas" : "0",
          "similarity" : {
              "my_payload_similarity" : {
-                 "type" : "payload"
+                 "type" : "payload_similarity"
              }
          },
          "analysis" : {
                 "analyzer" : {
                     "my_payload_analyzer" : {
+                        "type" : "custom",
                         "tokenizer" : "whitespace",
-                        "filter" : [ "standard", "lowercase", "payload_tokenfilter" ]
+                        "filter" : [ "lowercase", "delimited_payload_filter" ]
                     }
                  }
          }
@@ -61,6 +60,7 @@ Example
             "content" : {
               "type": "string",
               "analyzer" : "my_payload_analyzer",
+              "term_vector": "with_positions_offsets_payloads",
               "similarity" : "my_payload_similarity"
             }
           }
@@ -107,7 +107,7 @@ Example
 
 Elasticsearch Payload Plugin
 
-Copyright (C) 2015 Jörg Prante
+Copyright (C) 2015, 2016 Jörg Prante
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

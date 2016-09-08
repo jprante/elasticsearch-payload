@@ -1,14 +1,15 @@
 package org.xbib.elasticsearch.index.query;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queries.payloads.AveragePayloadFunction;
+import org.apache.lucene.queries.payloads.PayloadScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.payloads.AveragePayloadFunction;
-import org.apache.lucene.search.payloads.PayloadTermQuery;
+import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.util.BytesRef;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.index.mapper.MapperService;
+import org.elasticsearch.index.mapper.MappedFieldType;
 import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.index.query.QueryParser;
 import org.elasticsearch.index.query.QueryParsingException;
@@ -17,7 +18,7 @@ import java.io.IOException;
 
 public class PayloadTermQueryParser implements QueryParser {
 
-    public static final String NAME = "payload_term";
+    static final String NAME = "payload_term";
 
     @Inject
     public PayloadTermQueryParser() {
@@ -41,7 +42,6 @@ public class PayloadTermQueryParser implements QueryParser {
 
 
         String value = null;
-        float boost = 1.0f;
         String queryName = null;
         token = parser.nextToken();
         if (token == XContentParser.Token.START_OBJECT) {
@@ -54,12 +54,10 @@ public class PayloadTermQueryParser implements QueryParser {
                         value = parser.text();
                     } else if ("value".equals(currentFieldName)) {
                         value = parser.text();
-                    } else if ("boost".equals(currentFieldName)) {
-                        boost = parser.floatValue();
                     } else if ("_name".equals(currentFieldName)) {
                         queryName = parser.text();
                     } else {
-                        throw new QueryParsingException(parseContext.index(), "[payload_term] query does not support [" + currentFieldName + "]");
+                        throw new QueryParsingException(parseContext, "[payload_term] query does not support [" + currentFieldName + "]");
                     }
                 }
             }
@@ -69,27 +67,16 @@ public class PayloadTermQueryParser implements QueryParser {
             // move to the next token
             parser.nextToken();
         }
-
         if (value == null) {
-            throw new QueryParsingException(parseContext.index(), "No value specified for term query");
+            throw new QueryParsingException(parseContext, "No value specified for term query");
         }
-
-        BytesRef valueBytes = null;
-        MapperService.SmartNameFieldMappers smartNameFieldMappers = parseContext.smartFieldMappers(fieldName);
-        if (smartNameFieldMappers != null) {
-            if (smartNameFieldMappers.hasMapper()) {
-                fieldName = smartNameFieldMappers.mapper().names().indexName();
-                valueBytes = smartNameFieldMappers.mapper().indexedValueForSearch(value);
-            }
-        }
+        MappedFieldType mappedFieldType = parseContext.fieldMapper(fieldName);
+        BytesRef valueBytes = mappedFieldType.indexedValueForSearch(value);
         if (valueBytes == null) {
             valueBytes = new BytesRef(value);
         }
-
-        PayloadTermQuery query = new PayloadTermQuery(new Term(fieldName, valueBytes),
+        PayloadScoreQuery query = new PayloadScoreQuery(new SpanTermQuery(new Term(fieldName, valueBytes)),
                 new AveragePayloadFunction());
-
-        query.setBoost(boost);
         if (queryName != null) {
             parseContext.addNamedQuery(queryName, query);
         }
